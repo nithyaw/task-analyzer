@@ -1,4 +1,5 @@
-var BASE_URL = "http://127.0.0.1:8000/api/tasks";
+// Use relative URL so it works both locally and on Render
+var BASE_URL = "/api/tasks";
 
 function getStrategy() {
   var select = document.getElementById("strategySelect");
@@ -82,17 +83,25 @@ async function analyzeTasks() {
   var strategy = getStrategy();
 
   try {
-    var res = await fetch(BASE_URL + "/analyze/?strategy=" + strategy, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(tasks)
-    });
+    var res = await fetch(
+      BASE_URL + "/analyze/?strategy=" + encodeURIComponent(strategy),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(tasks)
+      }
+    );
 
     if (!res.ok) {
-      var err = await res.json();
-      throw new Error(err.detail || "Request failed");
+      var errData;
+      try {
+        errData = await res.json();
+      } catch (e) {
+        errData = {};
+      }
+      throw new Error(errData.detail || "Request failed with status " + res.status);
     }
 
     var sorted = await res.json();
@@ -112,17 +121,25 @@ async function suggestTasks() {
   var strategy = getStrategy();
 
   try {
-    var res = await fetch(BASE_URL + "/suggest/?strategy=" + strategy, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(tasks)
-    });
+    var res = await fetch(
+      BASE_URL + "/suggest/?strategy=" + encodeURIComponent(strategy),
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(tasks)
+      }
+    );
 
     if (!res.ok) {
-      var err = await res.json();
-      throw new Error(err.detail || "Request failed");
+      var errData;
+      try {
+        errData = await res.json();
+      } catch (e) {
+        errData = {};
+      }
+      throw new Error(errData.detail || "Request failed with status " + res.status);
     }
 
     var data = await res.json();
@@ -182,7 +199,9 @@ function displayResults(tasks) {
 
     var dueText = task.due_date ? task.due_date : "No due date";
     var imp = typeof task.importance !== "undefined" ? task.importance : "-";
-    var hours = typeof task.estimated_hours !== "undefined" ? task.estimated_hours : "-";
+    var hours = typeof task.estimated_hours !== "undefined"
+      ? task.estimated_hours
+      : "-";
     var depsCount = Array.isArray(task.dependencies)
       ? task.dependencies.length
       : 0;
