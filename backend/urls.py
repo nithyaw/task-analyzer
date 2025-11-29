@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", include("tasks.urls")),         # 👈 this makes "/" use home view
     path("api/tasks/", include("tasks.urls")),
 ]

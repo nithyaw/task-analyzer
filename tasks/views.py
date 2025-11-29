@@ -3,6 +3,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .scoring import calculate_task_score
+from django.shortcuts import render
+
+def home(request):
+    return render(request, "index.html")
 
 
 def normalize_task(raw_task, index):
